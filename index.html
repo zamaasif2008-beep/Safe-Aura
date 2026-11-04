@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Safe Aura — Smart Community Safety Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body,main{background:#0C0C0C}
+html{scroll-behavior:smooth}
+body{font-family:'Kanit',system-ui,sans-serif;font-weight:400;color:#D7E2EA;line-height:1.3}
+main{overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+ol,ul{list-style:none}
+
+.hero-heading{background:linear-gradient(180deg,#646973 0%,#BBCCD7 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* FadeIn Animation */
+.fade-in{opacity:0;transform:translate3d(var(--fade-x,0),var(--fade-y,0),0);transition:opacity var(--fade-dur,.7s) cubic-bezier(.25,.1,.25,1),transform var(--fade-dur,.7s) cubic-bezier(.25,.1,.25,1)}
+.fade-in.fade-slow{--fade-dur:.9s}
+.fade-in.is-visible{opacity:1;transform:none}
+
+/* ---------- Hero Layout ---------- */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;overflow-x:clip;padding-bottom:3rem}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 1.5rem 0;font-weight:500;text-transform:uppercase;letter-spacing:.05em;font-size:.875rem;color:#D7E2EA;position:relative;z-index:20}
+.nav a{transition:opacity .2s}.nav a:hover{opacity:.7}
+.hero-title-wrap{overflow:hidden;width:100%;margin-top:1.5rem}
+.hero-title{font-weight:900;text-transform:uppercase;letter-spacing:-.025em;line-height:1;white-space:nowrap;width:100%;text-align:center;font-size:14vw}
+
+/* ---------- Portrait & Interactive WebGL Canvas Container ---------- */
+.hero-portrait-container {
+  position: absolute; 
+  left: 50%; 
+  top: 48%; 
+  transform: translate(-50%, -50%); 
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+.hero-portrait-wrap {
+  width: 360px; 
+  touch-action: none;
+  position: relative;
+  cursor: grab;
+}
+.hero-portrait-wrap:active { cursor: grabbing; }
+@media (min-width: 640px)  { .hero-portrait-wrap { width: 440px; } }
+@media (min-width: 768px)  { .hero-portrait-wrap { width: 500px; } }
+@media (min-width: 1024px) { .hero-portrait-wrap { width: clamp(520px, 64vh, 40vw); } }
+
+.hero-portrait-inner { transition: transform 0.6s ease-in-out; will-change: transform; position: relative; }
+.hero-portrait-inner img { display: block; width: 100%; height: auto; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+#faceGl { position: absolute; left: -35%; top: -35%; width: 170%; height: 170%; pointer-events: none; }
+#faceProps { position: absolute; inset: 0; pointer-events: none; }
+#faceFly, #faceHand { position: absolute; opacity: 0; transition: opacity .2s; transform: translate(-50%, -50%); }
+#faceFly { width: 6%; fill: #111; }
+#faceFly .wing { fill: rgba(220, 235, 255, .7); transform-origin: 16px 15px; animation: flap .05s linear infinite alternate; }
+#faceFly .wing.r { animation-direction: alternate-reverse; }
+@keyframes flap { from { transform: rotate(-16deg); } to { transform: rotate(16deg); } }
+#faceHand { width: 11%; fill: #fff; stroke: #0c0c0c; stroke-width: 1.4; stroke-linejoin: round; }
+#faceHand .grab { display: none; }
+#faceHand.shut .open { display: none; }
+#faceHand.shut .grab { display: block; }
+
+.expr-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1rem;
+  padding: 0 1rem;
+  pointer-events: auto;
+  max-width: 540px;
+  z-index: 20;
+}
+
+.expr-btn {
+  background: rgba(20, 20, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  color: #D7E2EA;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+.expr-btn:hover {
+  background: rgba(218, 90, 200, 0.25);
+  border-color: rgba(218, 90, 200, 0.6);
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+.contact-btn{background:linear-gradient(123deg,#18011F 7%,#B600A8 37%,#7621B0 72%,#BE4C00 100%);box-shadow:0 4px 4px rgba(181,1,167,.25),4px 4px 12px #7721B1 inset;outline:2px solid #fff;outline-offset:-3px;border:0;border-radius:9999px;color:#fff;font-weight:500;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;padding:12px 32px;font-size:.75rem}
+@media(min-width:768px){.contact-btn{padding:14px 40px;font-size:.875rem}}
+@media(min-width:1024px){.contact-btn{padding:16px 48px;font-size:1rem}}
+
+.marquee{padding:6rem 0 2.5rem;overflow:hidden;display:flex;flex-direction:column;gap:.75rem}
+.marquee-row{display:flex;gap:.75rem;width:max-content;will-change:transform;margin-left:-1600px}
+.marquee-row img{width:420px;height:270px;flex:none;object-fit:cover;border-radius:1rem}
+
+.about{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;padding:6rem 1.5rem;text-align:center;overflow:hidden}
+.section-title{font-weight:900;text-transform:uppercase;text-align:center;line-height:1;font-size:clamp(3rem,12vw,160px)}
+.about-text{max-width:560px;font-weight:500;color:#D7E2EA;font-size:clamp(1rem,2vw,1.35rem);line-height:1.5}
+.about-text .word{display:inline-block;white-space:nowrap}
+.about-text .ch{opacity:.2}
+
+.features{background:#fff;color:#0C0C0C;border-radius:40px 40px 0 0;padding:5rem 1.5rem 7rem;position:relative}
+.features-title{color:#0C0C0C;margin-bottom:3rem}
+.feature-list{max-width:64rem;margin:0 auto}
+.feature-item{display:flex;gap:1rem;align-items:flex-start;padding:1.5rem 0}
+.feature-item+.feature-item{border-top:1px solid rgba(12,12,12,.15)}
+.feature-num{font-weight:900;font-size:clamp(3rem,10vw,140px);line-height:1;min-width:1.4em}
+.feature-name{font-weight:500;text-transform:uppercase;font-size:clamp(1rem,2.2vw,2.1rem);line-height:1.1;margin-bottom:.5rem}
+.feature-desc{font-weight:300;opacity:.6;font-size:clamp(.85rem,1.6vw,1.25rem);line-height:1.45}
+
+.modes{position:relative;z-index:10;background:#0C0C0C;border-radius:40px 40px 0 0;margin-top:-2.5rem;padding:5rem 1rem 6rem}
+.modes .section-title{margin-bottom:3rem}
+.card-slot{height:85vh}
+.mode-card{position:sticky;--stick:6rem;top:calc(var(--stick) + var(--i)*28px);transform-origin:top center;border:2px solid #D7E2EA;background:#0C0C0C;border-radius:40px;padding:1rem;max-width:80rem;margin:0 auto;will-change:transform}
+.card-top{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1.5rem;margin-bottom:1rem}
+.card-num{font-weight:900;font-size:clamp(3rem,10vw,140px);line-height:1}
+.card-meta{flex:1;min-width:150px}
+.card-cat{font-size:.8rem;font-weight:300;text-transform:uppercase;letter-spacing:.1em;opacity:.8}
+.card-name{font-weight:500;text-transform:uppercase;font-size:clamp(1rem,2.2vw,2.1rem);line-height:1.1}
+.ghost-btn{background:transparent;border:2px solid #D7E2EA;border-radius:9999px;color:#D7E2EA;text-transform:uppercase;letter-spacing:.15em;font-weight:500;font-size:.7rem;padding:.7rem 1.4rem;cursor:pointer;transition:background .2s}
+.ghost-btn:hover{background:rgba(215,226,234,.1)}
+.card-bottom{display:flex;gap:.75rem;align-items:stretch}
+.col-left{width:40%;display:flex;flex-direction:column;gap:.75rem}
+.col-right{width:60%}
+.card-bottom img{display:block;width:100%;object-fit:cover;border-radius:40px}
+.col-left img:nth-child(1){height:clamp(130px,16vw,230px)}
+.col-left img:nth-child(2){height:clamp(160px,22vw,340px)}
+.col-right img{height:100%;min-height:300px}
+.marquee-row img{background:#1a1a1a}
+/* click fixes: the big transparent containers must never swallow clicks meant for buttons */
+.hero-portrait-container{pointer-events:none}
+.hero-portrait-wrap,.expr-toolbar{pointer-events:auto}
+.expr-toolbar{position:relative;z-index:30}
+.hero-bottom{pointer-events:none;z-index:9 !important}
+.hero-bottom button{pointer-events:auto}
+@media(max-width:640px){
+  .nav a{display:none}
+  /* on phones put the face + buttons in normal flow so nothing overlaps the bottom row */
+  .hero-portrait-container{position:relative;left:auto;top:auto;transform:none;margin:1rem auto 0}
+  .hero-bottom{padding-top:1.5rem !important}
+}
+@media(prefers-reduced-motion:reduce){.fade-in{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+<main>
+
+  <!-- 1. HERO -->
+  <section class="hero" id="hero">
+    <nav class="nav fade-in" data-delay="0" style="--fade-y:-20px" aria-label="Primary">
+      <div class="flex items-center gap-3">
+        <span class="font-bold text-xl tracking-wider text-pink-500">SAFE AURA</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="#about">About</a>
+        <a href="#features">Features</a>
+        <a href="#projects">Modes</a>
+        <a href="#" onclick="event.preventDefault();openAdminLogin();">Admin</a>
+        <button class="contact-btn" id="openAuthBtn" type="button" onclick="openAuthModal()">Get Started / Login</button>
+      </div>
+    </nav>
+
+    <div class="hero-title-wrap">
+      <h1 class="hero-heading hero-title fade-in" data-delay="150" style="--fade-y:40px">Stay Safe</h1>
+    </div>
+
+    <!-- LIVING PORTRAIT CONTAINER -->
+    <div class="hero-portrait-container">
+      <div class="hero-portrait-wrap" id="magnetWrap">
+        <div class="fade-in" style="--fade-y:30px" data-delay="600">
+          <div class="hero-portrait-inner" id="magnetInner">
+            <img id="faceFallback" src="https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20261031_040619_2f6f349e-a4a7-40db-8e9b-03b6acd8b99a.png&w=1024&q=92" alt="Portrait" />
+            <canvas id="faceGl" aria-hidden="true"></canvas>
+            <div id="faceProps" aria-hidden="true">
+              <svg id="faceFly" viewBox="0 0 32 32"><path class="wing" d="M15 15C12 9.500 4.500 8.500 2 13c2.500 4.500 10 4.500 13 2z"/><path class="wing r" d="M17 15c3-5.500 10.500-6.500 13-2-2.500 4.500-10 4.500-13 2z"/><ellipse cx="16" cy="19.500" rx="4" ry="6.500"/><circle cx="16" cy="11.500" r="3.300"/></svg>
+              <svg id="faceHand" viewBox="0 0 32 32"><path class="open" d="M10.500 16.500V8.200a1.800 1.800 0 0 1 3.600 0V14v-8a1.800 1.800 0 0 1 3.600 0V14 7a1.800 1.800 0 0 1 3.600 0v8-5a1.800 1.800 0 0 1 3.600 0v10.500c0 5-3.400 8.500-8.400 8.500-3.600 0-5.700-1.600-7.600-4.600l-3.500-5.600c-.6-1 .1-2.200 1.200-2.400 1-.2 1.900.2 2.600 1z"/><path class="grab" d="M10.500 17v-3.300a1.800 1.800 0 0 1 3.600 0V14v-1.800a1.800 1.800 0 0 1 3.600 0V14v-1.300a1.800 1.800 0 0 1 3.600 0V14v-.3a1.800 1.800 0 0 1 3.600 0v6.800c0 5-3.400 8.500-8.400 8.500-3.600 0-5.700-1.600-7.600-4.600l-2.300-3.700c-.6-1 .1-2.200 1.200-2.400 1-.2 1.900.2 2.700 1z"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PORTRAIT REACTABLE EXPRESSION CONTROLS -->
+      <div class="expr-toolbar">
+        <button class="expr-btn" data-emotion="grin">😊 Grin</button>
+        <button class="expr-btn" data-emotion="hearts">😍 Hearts</button>
+        <button class="expr-btn" data-emotion="winkr">😉 Wink</button>
+        <button class="expr-btn" data-emotion="whistle1">😙 Whistle</button>
+        <button class="expr-btn" data-emotion="shock">😯 Alert</button>
+        <button class="expr-btn" data-emotion="sneeze1">🤧 Sneeze</button>
+        <button class="expr-btn" data-emotion="yawn">🥱 Yawn</button>
+        <button class="expr-btn" data-emotion="laugh">😆 Laugh</button>
+        <button class="expr-btn" data-emotion="scrunch">😣 Pain</button>
+        <button class="expr-btn" data-emotion="cry">😢 Cry</button>
+        <button class="expr-btn" data-emotion="angry">😡 Angry</button>
+      </div>
+    </div>
+
+    <div class="hero-bottom" style="margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;padding:0 1.5rem 1.75rem;position:relative;z-index:11">
+      <p class="hero-tagline fade-in" data-delay="350" style="--fade-y:20px;color:#D7E2EA;font-weight:300;text-transform:uppercase;font-size:clamp(.75rem,1.4vw,1.5rem);max-width:220px">Safe Aura — A Smart, Community-Driven Safety Network</p>
+      <div class="fade-in" data-delay="500" style="--fade-y:20px">
+        <button class="contact-btn" type="button" onclick="openAuthModal()">Get Started</button>
+        <button class="contact-btn" type="button" style="margin-left:.5rem" onclick="openAdminLogin()">Admin Panel</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. MARQUEE -->
+  <section class="marquee" id="marquee" aria-label="Gallery">
+    <div class="marquee-row" id="marqueeRow1"></div>
+    <div class="marquee-row" id="marqueeRow2"></div>
+  </section>
+
+  <!-- 3. ABOUT -->
+  <section class="about" id="about">
+    <h2 class="hero-heading section-title fade-in" style="--fade-y:30px">About Safe Aura</h2>
+    <p class="about-text" id="aboutText"></p>
+    <div class="fade-in" style="--fade-y:20px" id="contact">
+      <button class="contact-btn" type="button" onclick="openAuthModal()">Explore Platform</button>
+    </div>
+  </section>
+
+  <!-- 4. FEATURES -->
+  <section class="features" id="features">
+    <h2 class="section-title features-title fade-in" style="--fade-y:30px">Core Features</h2>
+    <ol class="feature-list" id="featureList"></ol>
+  </section>
+
+  <!-- 5. MODES -->
+  <section class="modes" id="projects">
+    <h2 class="hero-heading section-title fade-in" style="--fade-y:30px">Modes</h2>
+    <div class="cards" id="cards"></div>
+  </section>
+
+</main>
+
+<!-- AUTHENTICATION & REGISTRATION MODAL (Supports Existing Users & New Signups) -->
+<div id="authModal" style="display:none;" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-[#141414] border border-white/15 rounded-3xl p-6 md:p-8 max-w-xl w-full relative shadow-2xl my-8">
+    <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-white/60 hover:text-white text-xl font-bold px-2 py-1 cursor-pointer">✕</button>
+
+    <!-- Tab Toggle: Existing Login vs New Registration -->
+    <div class="flex border-b border-white/10 mb-6">
+      <button id="tabLogin" onclick="switchAuthTab('login')" class="flex-1 pb-3 text-center border-b-2 border-pink-500 font-bold text-white text-sm uppercase tracking-wider">Existing User Login</button>
+      <button id="tabRegister" onclick="switchAuthTab('register')" class="flex-1 pb-3 text-center border-b-2 border-transparent text-white/50 hover:text-white text-sm uppercase tracking-wider">New Registration</button>
+    </div>
+
+    <!-- EXISTING USER LOGIN VIEW -->
+    <div id="loginView" class="space-y-4">
+      <div>
+        <h3 class="text-xl font-bold text-white mb-1">Welcome Back</h3>
+        <p class="text-xs text-white/50">Log in to your existing account. No re-verification required. Staff: use the Admin link in the top menu.</p>
+      </div>
+      <form onsubmit="event.preventDefault(); performExistingLogin();" class="space-y-4">
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-white/70 mb-2">Registered Email or Mobile Number</label>
+          <input type="text" id="loginId" placeholder="user@example.com or +91 98765 43210" required class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-white/70 mb-2">Password or Secure Passcode</label>
+          <input type="password" id="loginPass" placeholder="••••••••" required class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-pink-500">
+        </div>
+        <button type="submit" class="contact-btn w-full py-3 text-center justify-center">Log In to Safety Hub</button>
+      </form>
+    </div>
+
+    <!-- NEW REGISTRATION FLOW CONTAINER (Steps 1 to 9) -->
+    <div id="registerView" class="hidden space-y-5">
+      <!-- STEP 1: WELCOME -->
+      <div id="regStep1" class="space-y-5 text-center">
+        <div class="w-14 h-14 bg-pink-500/20 border border-pink-500/40 rounded-full flex items-center justify-center mx-auto text-pink-400 text-xl font-bold">🛡️</div>
+        <div>
+          <h3 class="text-2xl font-bold text-white">Create Safe Aura Account</h3>
+          <p class="text-xs text-white/60 max-w-sm mx-auto mt-1">Get started with identity verification and personalized safety mode setup.</p>
+        </div>
+        <button onclick="goToRegStep(2)" class="contact-btn w-full py-3 text-center justify-center">Start Registration</button>
+      </div>
+
+      <!-- STEP 2: VERIFICATION -->
+      <div id="regStep2" class="hidden space-y-4">
+        <div class="border-b border-white/10 pb-2">
+          <span class="text-[10px] font-bold text-pink-500 uppercase tracking-widest">Step 2 of 8</span>
+          <h4 class="text-lg font-bold text-white">Identity Verification</h4>
+        </div>
+        <form onsubmit="event.preventDefault(); goToRegStep(3);" class="space-y-3">
+          <input type="text" placeholder="Government Verification ID (XXXX - XXXX - XXXX)" maxlength="19" required class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white text-sm font-mono tracking-widest text-center focus:outline-none focus:border-pink-500">
+          <button type="submit" class="contact-btn w-full py-3">Verify & Continue</button>
+        </form>
+      </div>
+
+      <!-- STEP 3: MODE SELECTION -->
+      <div id="regStep3" class="hidden space-y-4">
+        <div class="border-b border-white/10 pb-2 text-center">
+          <span class="text-[10px] font-bold text-pink-500 uppercase tracking-widest">Step 3 of 8</span>
+          <h4 class="text-lg font-bold text-white">Select Your Safety Mode</h4>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="border border-white/15 bg-white/5 p-4 rounded-xl flex flex-col justify-between">
+            <div>
+              <div class="text-xl mb-1">🏃‍♀️</div>
+              <h5 class="font-bold text-sm text-white mb-1">Personal Safety</h5>
+              <p class="text-[11px] text-white/60 mb-3">Everyday travel, walking alone, and emergency SOS.</p>
+            </div>
+            <button onclick="selectModeAndAdvance('Personal')" class="w-full border border-pink-500/50 hover:bg-pink-500/20 text-pink-300 py-1.5 rounded-lg text-xs">Choose Personal</button>
+          </div>
+          <div class="border border-white/15 bg-white/5 p-4 rounded-xl flex flex-col justify-between">
+            <div>
+              <div class="text-xl mb-1">🏢</div>
+              <h5 class="font-bold text-sm text-white mb-1">Corporate Safety</h5>
+              <p class="text-[11px] text-white/60 mb-3">Office commutes, cab tracking, and employer reports.</p>
+            </div>
+            <button onclick="selectModeAndAdvance('Corporate')" class="w-full border border-purple-500/50 hover:bg-purple-500/20 text-purple-300 py-1.5 rounded-lg text-xs">Choose Corporate</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: AGE VERIFICATION -->
+      <div id="regStep4" class="hidden space-y-4">
+        <div class="border-b border-white/10 pb-2">
+          <span class="text-[10px] font-bold text-pink-500 uppercase tracking-widest">Step 4 of 8</span>
+          <h4 class="text-lg font-bold text-white">Age Eligibility (Min 14 Years)</h4>
+        </div>
+        <form onsubmit="event.preventDefault(); verifyUserAge();" class="space-y-3">
+          <input type="date" id="regDob" required class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-2.5 text-white text-sm text-center focus:outline-none focus:border-pink-500">
+          <p id="regAgeErr" class="text-xs text-red-400 hidden">⚠️ Minimum required age is 14 years.</p>
+          <button type="submit" class="contact-btn w-full py-3">Confirm Age</button>
+        </form>
+      </div>
+
+      <!-- STEP 6: PERSONAL DETAILS & ADDRESS -->
+      <div id="regStep6" class="hidden space-y-3">
+        <div class="border-b border-white/10 pb-2">
+          <span class="text-[10px] font-bold text-pink-500 uppercase tracking-widest">Steps 5 & 6 of 8</span>
+          <h4 class="text-lg font-bold text-white">Personal Profile & Home Address</h4>
+        </div>
+        <form onsubmit="event.preventDefault(); goToRegStep(7);" class="space-y-2.5">
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" placeholder="Full Name" required class="bg-white/5 border border-white/20 rounded-xl px-3 py-2 text-white text-xs">
+            <input type="tel" placeholder="Mobile Number" required class="bg-white/5 border border-white/20 rounded-xl px-3 py-2 text-white text-xs">
+          </div>
+          <input type="email" placeholder="Email Address" required class="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2 text-white text-xs">
+          <input type="text" placeholder="Home Address / Locality (Optional)" class="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2 text-white text-xs">
+          <div class="grid grid-cols-3 gap-2">
+            <input type="text" placeholder="City" class="bg-white/5 border border-white/20 rounded-xl px-2 py-2 text-white text-xs">
+            <input type="text" placeholder="State" class="bg-white/5 border border-white/20 rounded-xl px-2 py-2 text-white text-xs">
+            <input type="text" placeholder="PIN" class="bg-white/5 border border-white/20 rounded-xl px-2 py-2 text-white text-xs">
+          </div>
+          <button type="submit" class="contact-btn w-full py-2.5 mt-1">Next: Emergency Contacts</button>
+        </form>
+      </div>
+
+      <!-- STEP 7: EMERGENCY CONTACTS -->
+      <div id="regStep7" class="hidden space-y-3">
+        <div class="border-b border-white/10 pb-2">
+          <span class="text-[10px] font-bold text-pink-500 uppercase tracking-widest">Step 7 of 8</span>
+          <h4 class="text-lg font-bold text-white">Trusted Emergency Contacts</h4>
+        </div>
+        <form onsubmit="event.preventDefault(); goToRegStep(8);" class="space-y-2.5">
+          <div class="p-2.5 bg-white/5 border border-white/10 rounded-xl space-y-1.5">
+            <p class="text-[11px] text-pink-400 font-bold">Contact 1 (Guardian)</p>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="text" placeholder="Name" required class="bg-white/5 border border-white/20 rounded-lg px-2.5 py-1 text-white text-xs">
+              <input type="tel" placeholder="Mobile" required class="bg-white/5 border border-white/20 rounded-lg px-2.5 py-1 text-white text-xs">
+            </div>
+          </div>
+          <button type="submit" class="contact-btn w-full py-3">Create Account</button>
+        </form>
+      </div>
+
+      <!-- STEP 8: SUCCESS -->
+      <div id="regStep8" class="hidden space-y-4 text-center">
+        <div class="w-12 h-12 bg-green-500/20 border border-green-500/40 rounded-full flex items-center justify-center mx-auto text-green-400 text-xl font-bold">✓</div>
+        <h4 class="text-xl font-bold text-white">Account Ready!</h4>
+        <button onclick="finishRegistration()" class="contact-btn w-full py-3">Open Safety Dashboard</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN GATE -->
+<div id="adminLoginModal" style="display:none;" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
+  <div class="bg-[#141414] border border-purple-500/30 rounded-3xl p-6 md:p-8 max-w-sm w-full relative shadow-2xl">
+    <button onclick="closeAdminLogin()" class="absolute top-4 right-4 text-white/60 hover:text-white text-xl font-bold px-2 py-1 cursor-pointer">✕</button>
+    <div class="w-12 h-12 bg-purple-500/20 border border-purple-500/40 rounded-full flex items-center justify-center mx-auto text-xl mb-3">🔐</div>
+    <h3 class="text-xl font-bold text-white text-center">Admin Sign In</h3>
+    <p class="text-xs text-white/50 text-center mb-4">Authorized command-center staff only.</p>
+    <form onsubmit="event.preventDefault(); submitAdminLogin();" class="space-y-3" autocomplete="off">
+      <input type="text" id="alId" placeholder="Admin ID" required class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500">
+      <input type="password" id="alPass" placeholder="Password" required class="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500">
+      <p id="alErr" class="text-xs text-red-400 min-h-[1rem]"></p>
+      <button type="submit" class="contact-btn w-full py-3">Enter Command Center</button>
+    </form>
+  </div>
+</div>
+
+<!-- POPULATED DASHBOARDS -->
+<div id="citizenDash" style="display:none;" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 overflow-y-auto p-4 md:p-8">
+  <div class="max-w-5xl mx-auto space-y-5">
+    <div class="flex justify-between items-center border-b border-white/10 pb-4">
+      <div><h2 class="text-2xl font-bold text-white">Safe Aura — Citizen Hub</h2><p class="text-xs text-white/50">Verified Citizen | Safety Mode: Active</p></div>
+      <button onclick="closeDashboards()" class="px-4 py-2 border border-white/20 rounded-full text-xs text-white hover:bg-white/10 cursor-pointer">Exit Portal</button>
+    </div>
+    <div id="cTabs" class="flex flex-wrap gap-2"></div>
+    <div id="cBody" class="space-y-4"></div>
+  </div>
+</div>
+<div id="adminDash" style="display:none;" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 overflow-y-auto p-4 md:p-8">
+  <div class="max-w-6xl mx-auto space-y-5">
+    <div class="flex justify-between items-center border-b border-white/10 pb-4">
+      <div><h2 class="text-2xl font-bold text-purple-400">Emergency Command Center</h2><p class="text-xs text-white/50">Admin Panel | Role: Super Admin | Official Telemetry Dispatch &amp; Incident Monitoring</p></div>
+      <button onclick="closeDashboards()" class="px-4 py-2 border border-white/20 rounded-full text-xs text-white hover:bg-white/10 cursor-pointer">Exit Command</button>
+    </div>
+    <div id="aTabs" class="flex flex-wrap gap-2"></div>
+    <div id="aBody" class="space-y-4"></div>
+  </div>
+</div>
+
+<!-- MAIN SCRIPT ENGINE -->
+<script>
+(function () {
+  'use strict';
+
+  var ABOUT_TEXT = "Safe Aura helps girls and women access safety information, seek emergency assistance, monitor journey routes, find verified safe stop locations, and report unsafe public spaces. Safety through smart community intelligence!";
+
+  var FEATURES = [
+    ['Emergency SOS', 'Tap the SOS button to alert trusted contacts and law enforcement with your live location. Encrypted background syncing guarantees retries.'],
+    ['Live Safety Heatmap', 'Color-coded risk indicators powered by community reports, lighting density, and nearby emergency help stops.'],
+    ['Verified Safe Trip', 'Track cab and transit commutes with driver identity validation, location check-ins, and automated emergency triggers.'],
+    ['Safe Stop Network', 'Find participating 24/7 pharmacies, petrol stations, and safe havens equipped with direct helpline connections.'],
+    ['Community Reporting', 'Report unlit pathways or harassment zones with photo pins, directly routed to local municipal offices.'],
+    ['Privacy Control', 'Granular controls, minimal identity verification, and localized location tracking options keep you in total control.']
+  ];
+
+  /* Self-made animated "women helping women" illustrations (no third-party hosting) */
+  var CAP=['Women helping women','Walk home together','Share your live location','Press SOS \u2014 help is coming','Call a trusted friend','Light the way for her','You are never alone'];
+  var BG=[['#2b0a3d','#b600a8'],['#0f2a4a','#7621b0'],['#3d1030','#be4c00']];
+  var SK=['#f1c6a5','#c68a62','#8d5a3b','#e8b794'], HR=['#1b1b1f','#4a2a1a','#6b2fa0','#2a1a12'], DR=['#ff4fb8','#ffd166','#4cc9f0','#80ed99','#f78c6b'];
+  function icon(t){
+    var s='';
+    if(t===0||t===6) s='<path d="M0 14C-32-8-14-32 0-12 14-32 32-8 0 14Z" fill="#ff4f7b"/>';
+    else if(t===1) s='<path d="M0-24 22-15V4C22 17 9 25 0 30-9 25-22 17-22 4V-15Z" fill="#4cc9f0"/><path d="M-9 2-2 9 11-6" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>';
+    else if(t===2) s='<path d="M0 26C-18 6-20-4-20-12A20 20 0 0 1 20-12C20-4 18 6 0 26Z" fill="#ffd166"/><circle cy="-12" r="7" fill="#2b0a3d"/>';
+    else if(t===3) s='<circle r="26" fill="#e11d48"/><text y="7" font-size="19" font-weight="800" text-anchor="middle" fill="#fff" font-family="sans-serif">SOS</text><circle r="26" fill="none" stroke="#e11d48" stroke-width="3"><animate attributeName="r" values="26;48" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="1.6s" repeatCount="indefinite"/></circle>';
+    else if(t===5) s='<circle r="16" fill="#ffd166"><animate attributeName="r" values="14;24;14" dur="2s" repeatCount="indefinite"/></circle>';
+    else s='<rect x="-14" y="-24" width="28" height="48" rx="6" fill="#80ed99"/><rect x="-10" y="-18" width="20" height="32" rx="2" fill="#0c0c0c"/>';
+    return '<g transform="translate(210 78)"><g><animateTransform attributeName="transform" type="scale" values="1;1.18;1" dur="1.8s" repeatCount="indefinite"/>'+s+'</g></g>';
+  }
+  function girl(x,k){
+    var sk=SK[k%4],hr=HR[(k+1)%4],dr=DR[k%5];
+    return '<g transform="translate('+x+' 0)"><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0" dur="'+(1.8+(k%3)*.3)+'s" repeatCount="indefinite"/>'+
+      '<rect x="-20" y="104" width="40" height="52" rx="18" fill="'+hr+'"/>'+
+      '<path d="M-24 250-15 150Q0 142 15 150L24 250Z" fill="'+dr+'"/>'+
+      '<circle cy="126" r="18" fill="'+sk+'"/>'+
+      '<path d="M-19 126Q-20 102 0 103Q20 102 19 126Q16 112 0 114Q-16 112-19 126Z" fill="'+hr+'"/></g></g>';
+  }
+  function scene(t,i){
+    var b=BG[Math.floor(i/7)%3];
+    var arm='<line x1="152" y1="172" x2="264" y2="174" stroke="'+SK[i%4]+'" stroke-width="10" stroke-linecap="round"><animate attributeName="y2" values="174;158;174" dur="2s" repeatCount="indefinite"/></line>';
+    var s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 270" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+b[0]+'"/><stop offset="1" stop-color="'+b[1]+'"/></linearGradient></defs><rect width="420" height="270" fill="url(#g)"/>'+
+      '<circle cx="60" cy="60" r="40" fill="#fff" opacity=".07"><animate attributeName="cy" values="60;85;60" dur="4s" repeatCount="indefinite"/></circle><circle cx="360" cy="200" r="55" fill="#fff" opacity=".06"/>'+
+      '<ellipse cx="210" cy="252" rx="170" ry="12" fill="#000" opacity=".25"/>'+
+      girl(140,i)+girl(280,i+2)+arm+icon(t)+
+      '<text x="210" y="30" font-size="17" font-weight="600" text-anchor="middle" fill="#fff" opacity=".85" font-family="sans-serif">'+CAP[t]+'</text></svg>';
+    return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s);
+  }
+  var CI=0;
+  function hg(){ var i=CI++; return scene((i*2+1)%7, i+4); }
+  var MODES = [
+    { cat: 'Everyday', name: 'Personal Safety', btn: 'Launch Personal Mode',
+      a: hg('20260412_055344_5eff02e0-87a5-41ce-b64f-eb08da8f33db'), b: hg('20260412_055431_11d841fd-8b41-46a5-82e4-b04f2407a7d8'), c: hg('20260412_055451_e317bf2d-28d4-48cc-86b0-6f72f25b6327') },
+    { cat: 'Workplace', name: 'Corporate Commute', btn: 'Launch Workplace Mode',
+      a: hg('20260412_055654_911201c5-36d9-4bc6-bac7-331adfce159f'), b: hg('20260412_055723_5ceda0b8-d9c2-4665-b2e3-83ba19ba76d1'), c: hg('20260412_055753_adc5dcbd-a8e6-49c0-b43a-9b030d835cea') },
+    { cat: 'Organizations', name: 'Admin Command', btn: 'Open Dashboard',
+      a: hg('20260412_055759_963cfb0b-4bd1-4b0f-9d0a-09bd6cf95b2f'), b: hg('20260412_060108_438f781a-9846-4dcc-89ab-c4e6cb830f5b'), c: hg('20260412_055818_9d062121-ad7e-46b9-999a-1a6a692ef1ee') }
+  ];
+
+  var GIFS = []; for (var gi = 0; gi < 21; gi++) GIFS.push(scene(gi % 7, gi));
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function img(src, alt) { var i = document.createElement('img'); i.src = src; i.alt = alt || ''; i.loading = 'lazy'; i.decoding = 'async'; return i; }
+
+  // Marquee
+  function fillRow(row, list) { list.concat(list, list).forEach(function (u) { row.appendChild(img(u, '')); }); }
+  fillRow($('marqueeRow1'), GIFS.slice(0, 11));
+  fillRow($('marqueeRow2'), GIFS.slice(11));
+
+  // About text
+  var ABOUT_TEXT = "Safe Aura helps girls and women access safety information, seek emergency assistance, monitor journey routes, find verified safe stop locations, and report unsafe public spaces. Safety through smart community intelligence!";
+  var aboutEl = $('aboutText'), chars = [];
+  ABOUT_TEXT.split(' ').forEach(function (w, wi, arr) {
+    var ws = el('span', 'word');
+    w.split('').forEach(function (c) { var s = el('span', 'ch', c); ws.appendChild(s); chars.push(s); });
+    aboutEl.appendChild(ws);
+    if (wi < arr.length - 1) aboutEl.appendChild(document.createTextNode(' '));
+  });
+
+  // Features
+  var fl = $('featureList');
+  FEATURES.forEach(function (f, i) {
+    var li = el('li', 'feature-item fade-in');
+    li.dataset.delay = String(i * 100);
+    li.style.setProperty('--fade-y', '30px');
+    li.appendChild(el('div', 'feature-num', ('0' + (i + 1)).slice(-2)));
+    var body = el('div', 'feature-body');
+    body.appendChild(el('h3', 'feature-name', f[0]));
+    body.appendChild(el('p', 'feature-desc', f[1]));
+    li.appendChild(body);
+    fl.appendChild(li);
+  });
+
+  // Modes
+  var cardsEl = $('cards');
+  MODES.forEach(function (m, i) {
+    var slot = el('div', 'card-slot');
+    var card = el('article', 'mode-card');
+    card.style.setProperty('--i', String(i));
+    var top = el('div', 'card-top');
+    top.appendChild(el('div', 'card-num hero-heading', ('0' + (i + 1)).slice(-2)));
+    var meta = el('div', 'card-meta');
+    meta.appendChild(el('p', 'card-cat', m.cat));
+    meta.appendChild(el('h3', 'card-name', m.name));
+    top.appendChild(meta);
+    top.appendChild(el('button', 'ghost-btn', m.btn)).type = 'button';
+    var bottom = el('div', 'card-bottom');
+    var left = el('div', 'col-left'); left.appendChild(img(m.a, m.name)); left.appendChild(img(m.b, m.name));
+    var right = el('div', 'col-right'); right.appendChild(img(m.c, m.name));
+    bottom.appendChild(left); bottom.appendChild(right);
+    card.appendChild(top); card.appendChild(bottom);
+    slot.appendChild(card); cardsEl.appendChild(slot);
+  });
+
+  /* ---------- AUTH & MODAL CONTROLS ---------- */
+  var selectedMode = 'Personal';
+
+  window.openAuthModal = function() {
+    $('authModal').style.display = 'flex';
+    switchAuthTab('login');
+  };
+
+  window.closeAuthModal = function() {
+    $('authModal').style.display = 'none';
+  };
+
+  window.switchAuthTab = function(tab) {
+    var tabLogin = $('tabLogin'), tabRegister = $('tabRegister');
+    var loginView = $('loginView'), registerView = $('registerView');
+    if (tab === 'login') {
+      tabLogin.className = "flex-1 pb-3 text-center border-b-2 border-pink-500 font-bold text-white text-sm uppercase tracking-wider";
+      tabRegister.className = "flex-1 pb-3 text-center border-b-2 border-transparent text-white/50 hover:text-white text-sm uppercase tracking-wider";
+      loginView.style.display = 'block';
+      registerView.style.display = 'none';
+    } else {
+      tabRegister.className = "flex-1 pb-3 text-center border-b-2 border-purple-500 font-bold text-white text-sm uppercase tracking-wider";
+      tabLogin.className = "flex-1 pb-3 text-center border-b-2 border-transparent text-white/50 hover:text-white text-sm uppercase tracking-wider";
+      loginView.style.display = 'none';
+      registerView.style.display = 'block';
+      goToRegStep(1);
+    }
+  };
+
+  window.performExistingLogin = function() {
+    closeAuthModal();
+    $('citizenDash').style.display = 'block';
+  };
+
+  window.goToRegStep = function(stepNum) {
+    [1, 2, 3, 4, 6, 7, 8].forEach(function(s) {
+      var el = $('regStep' + s);
+      if (el) el.style.display = 'none';
+    });
+    var target = $('regStep' + stepNum);
+    if (target) target.style.display = 'block';
+  };
+
+  window.selectModeAndAdvance = function(mode) {
+    selectedMode = mode;
+    goToRegStep(4);
+  };
+
+  window.verifyUserAge = function() {
+    var dob = new Date($('regDob').value);
+    var today = new Date();
+    var age = today.getFullYear() - dob.getFullYear();
+    var m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    if (age < 14) {
+      $('regAgeErr').style.display = 'block';
+    } else {
+      $('regAgeErr').style.display = 'none';
+      goToRegStep(6);
+    }
+  };
+
+  window.finishRegistration = function() {
+    closeAuthModal();
+    $('citizenDash').style.display = 'block';
+  };
+
+  window.closeDashboards = function() {
+    $('citizenDash').style.display = 'none';
+    $('adminDash').style.display = 'none';
+  };
+
+  window.triggerSOS = function() {
+    alert("🚨 SOS SIGNAL BROADCASTED! Emergency response teams and guardians alerted with your live location.");
+  };
+
+  /* ---------- FADE-IN, MARQUEE, TEXT REVEAL, CARD STACK ---------- */
+  var fades = document.querySelectorAll('.fade-in');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var t = en.target;
+        t.style.transitionDelay = parseInt(t.dataset.delay || '0', 10) + 'ms';
+        t.classList.add('is-visible');
+        io.unobserve(t);
+      });
+    }, {threshold: 0.1});
+    fades.forEach(function (f) { io.observe(f); });
+  } else {
+    fades.forEach(function (f) { f.classList.add('is-visible'); });
+  }
+
+  var rows = [
+    {el: $('marqueeRow1'), per: 11 * 432, dir: -1, x: 0},
+    {el: $('marqueeRow2'), per: 10 * 432, dir: 1, x: -10 * 432}
+  ];
+  var slots = document.querySelectorAll('.card-slot');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lastT = performance.now(), lastShown = -1;
+  function tick(now) {
+    requestAnimationFrame(tick);
+    var dt = Math.min(50, Math.max(0, now - lastT)); lastT = now;
+    var vh = window.innerHeight;
+    if (!reduce) rows.forEach(function (r) {
+      r.x += r.dir * 0.05 * dt;
+      if (r.dir < 0 && r.x <= -r.per) r.x += r.per;
+      if (r.dir > 0 && r.x >= 0) r.x -= r.per;
+      r.el.style.transform = 'translate3d(' + r.x + 'px,0,0)';
+    });
+    var ar = aboutEl.getBoundingClientRect();
+    var p = Math.min(1, Math.max(0, (vh * 0.85 - ar.top) / (vh * 0.5)));
+    var shown = Math.floor(p * chars.length);
+    if (shown !== lastShown) {
+      lastShown = shown;
+      chars.forEach(function (c, i) { c.style.opacity = i < shown ? '1' : '.2'; });
+    }
+    slots.forEach(function (sl, i) {
+      var nx = slots[i + 1], sc = 1;
+      if (nx) {
+        var q = Math.min(1, Math.max(0, (vh - nx.getBoundingClientRect().top) / (vh * 0.6)));
+        sc = 1 - 0.05 * q;
+      }
+      sl.firstChild.style.transform = 'scale(' + sc + ')';
+    });
+  }
+  requestAnimationFrame(tick);
+
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAuthModal(); });
+
+  /* ---------- EMOTION BUTTON BINDINGS ---------- */
+  document.querySelectorAll('.expr-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var emotion = btn.getAttribute('data-emotion');
+      if (window.__triggerFaceEmotion) window.__triggerFaceEmotion(emotion);
+    });
+  });
+})();
+</script>
+
+<!-- LIVING PORTRAIT ENGINE -->
+<script>
+(() => {
+  const P = 'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_';
+  const SHEETW = innerWidth < 760 ? 640 : 1024;
+  const FACE_DIR = ''; // set to 'faces/' to load your own faces/rest.png, faces/cry.png ... (serve via Live Server)
+  const url = (id, name) => FACE_DIR ? FACE_DIR + name + '.png' : P + id + '.png&w=' + SHEETW + '&q=90';
+  const IDS = {
+    "left":"20261031_041539_0c28e75d-625c-458f-8856-6b453a928025",
+    "closed":"20261031_041538_8fc82176-77a6-4184-8f32-945745b2f221",
+    "shock":"20261031_041539_ee462c23-6248-4ef8-83d4-807441048b67",
+    "tongue":"20261031_041539_75259b31-bca1-4dcd-adb9-31a25fa07a11",
+    "right":"20261031_041648_92b934ff-4d25-4e28-972f-cef1e88f054f",
+    "downleft":"20261031_041648_94ec5df2-86e4-481d-a104-6604cd3ee36b",
+    "upright":"20261031_041648_8de72dda-4c29-4d52-a259-acb682b21567",
+    "up":"20261031_041648_736f4839-4571-4677-898f-c5f64bfeb525",
+    "downright":"20261031_041649_eed87373-0d0c-4401-ab76-ad8da40421d3",
+    "down":"20261031_041649_143660e6-f71a-4874-b97f-fb8890d5b1a1",
+    "half":"20261031_041704_053e92a5-721a-4f93-86d8-631c1b8ea31a",
+    "cross":"20261031_041705_dc163465-5cfa-40c1-8c43-76c5deb789a0",
+    "angry":"20261031_041706_bc89f0b6-438d-46fc-86bd-d3ae08b1a561",
+    "scrunch":"20261031_041706_87b48b08-cc37-4278-96c2-8ac49d48a165",
+    "winkr":"20261031_041705_f622e78c-2c3d-4635-b4ac-bab0e5b2862a",
+    "winkl":"20261031_041705_df901488-4988-4b29-9517-44d417ead6f2",
+    "raised":"20261031_041705_53d6bed3-91ae-47f4-a306-6615fc30c3a7",
+    "puff":"20261031_041721_69a2bd4b-a663-4638-9fe1-952d640726e5",
+    "laugh":"20261031_041722_402f7a03-a57c-418c-a513-65d5ee89aecf",
+    "yawn":"20261031_041726_3ccd0f66-112a-408b-870d-84a73b907211",
+    "grin":"20261031_041722_14bedc29-1d7e-407f-800c-f8a584be9743",
+    "kiss":"20261031_041722_c9dfa379-7ad7-469a-a7a1-2207ea3b2132",
+    "cry":"20261031_041725_ab6d29ed-9c51-4d18-9a19-15161a42b914",
+    "smug":"20261031_041726_941343db-f191-42e2-a20d-76471622963b",
+    "scared":"20261031_041742_76d19aad-5f53-4657-bda1-ed0ba07d0919",
+    "sneeze1":"20261031_041920_d4fee90e-7fb7-43ff-b378-bc549653f68d",
+    "sneeze2":"20261031_041920_f30e74cb-21f3-4f11-8b9d-e4a1f469307e",
+    "whistle1":"20261031_041905_03626778-4a7a-4bd8-9136-658e44c36fe3",
+    "whistle2":"20261031_041920_ba051a0a-45bb-4004-b0e6-73d2cd519d71",
+    "hearts":"20261031_041938_b3929b4d-e3d9-4e5d-8cd0-7ec8ef5248ba",
+    "rest":"20261031_040619_2f6f349e-a4a7-40db-8e9b-03b6acd8b99a"
+  };
+
+  const OVER = 1.7, N = 72, M = N + 1, SPAN = OVER / N, ORIGIN = .5 - OVER / 2;
+  const WOBBLE = 2.3 * 2 * Math.PI, REACH = .085 / SPAN, C = REACH * WOBBLE, GAMMA = 2 * .14 * WOBBLE, NU = .2 * C;
+
+  const canvas = document.getElementById('faceGl');
+  const gl = canvas.getContext('webgl', {alpha: true, premultipliedAlpha: true, antialias: true});
+  if (!gl) return;
+
+  const VS = `attribute vec2 a, d; attribute float s; varying vec2 vUv; varying float vS;
+    uniform vec2 lean; uniform float overS;
+    void main(){ vUv = a; vS = s; vec2 p = a + d + lean; gl_Position = vec4(vec2(p.x-.5, .5-p.y)*2./overS, 0., 1.); }`;
+  const FS = `precision highp float; varying vec2 vUv; varying float vS;
+    uniform sampler2D faceA, faceB;
+    uniform float fade;
+    void main(){
+      if(vUv.x<0.||vUv.y<0.||vUv.x>1.||vUv.y>1.){ gl_FragColor = vec4(0.); return; }
+      vec4 c = mix(texture2D(faceA,vUv), texture2D(faceB,vUv), fade);
+      if(c.a<.004){ gl_FragColor = vec4(0.); return; }
+      gl_FragColor = vec4(c.rgb*vS, c.a);
+    }`;
+
+  const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; };
+  const pr = gl.createProgram();
+  gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(pr); gl.useProgram(pr);
+
+  const U = {over_: gl.getUniformLocation(pr, 'overS')};
+  for (const n of ['lean', 'faceA', 'faceB', 'fade']) U[n] = gl.getUniformLocation(pr, n);
+  gl.uniform1f(U.over_, OVER); gl.uniform1i(U.faceA, 0); gl.uniform1i(U.faceB, 1);
+
+  const count = M * M, ux = new Float32Array(count), uy = new Float32Array(count), vx = new Float32Array(count), vy = new Float32Array(count);
+  const rest = new Float32Array(count * 2), dyn = new Float32Array(count * 3);
+  for (let j = 0, k = 0; j < M; j++) for (let i = 0; i < M; i++) { rest[k++] = ORIGIN + i * SPAN; rest[k++] = ORIGIN + j * SPAN; }
+  const idx = new Uint16Array(N * N * 6);
+  for (let j = 0, k = 0; j < N; j++) for (let i = 0; i < N; i++) { const a = j * M + i, b = a + 1, c = a + M, d = c + 1; idx[k++] = a; idx[k++] = c; idx[k++] = b; idx[k++] = b; idx[k++] = c; idx[k++] = d; }
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, rest, gl.STATIC_DRAW);
+  const aa = gl.getAttribLocation(pr, 'a'); gl.enableVertexAttribArray(aa); gl.vertexAttribPointer(aa, 2, gl.FLOAT, false, 0, 0);
+  const dynBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, dynBuf); gl.bufferData(gl.ARRAY_BUFFER, dyn, gl.DYNAMIC_DRAW);
+  const ad = gl.getAttribLocation(pr, 'd'), as = gl.getAttribLocation(pr, 's');
+  gl.enableVertexAttribArray(ad); gl.vertexAttribPointer(ad, 2, gl.FLOAT, false, 12, 0);
+  gl.enableVertexAttribArray(as); gl.vertexAttribPointer(as, 1, gl.FLOAT, false, 12, 8);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+  function resize() {
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    const w = Math.max(2, Math.round(canvas.clientWidth * dpr)), h = Math.max(2, Math.round(canvas.clientHeight * dpr));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    gl.viewport(0, 0, w, h);
+  }
+
+  let brush = null;
+  function takeHold(u, v, radius = .22) {
+    const list = [];
+    for (let k = 0; k < count; k++) {
+      const dx = rest[k * 2] + ux[k] - u, dy = rest[k * 2 + 1] + uy[k] - v, w = Math.exp(-(dx * dx + dy * dy) / (radius * radius));
+      if (w > .02) list.push([k, w, ux[k], uy[k]]);
+    }
+    brush = {u, v, list, px: 0, py: 0};
+  }
+
+  function step(dt) {
+    const c2 = C * C, wo2 = WOBBLE * WOBBLE;
+    for (let j = 1; j < N; j++) for (let i = 1; i < N; i++) {
+      const k = j * M + i, l = k - 1, r = k + 1, t = k - M, b = k + M;
+      const lx = ux[l] + ux[r] + ux[t] + ux[b] - 4 * ux[k], ly = uy[l] + uy[r] + uy[t] + uy[b] - 4 * uy[k];
+      const lvx = vx[l] + vx[r] + vx[t] + vx[b] - 4 * vx[k], lvy = vy[l] + vy[r] + vy[t] + vy[b] - 4 * vy[k];
+      vx[k] += (c2 * lx - wo2 * ux[k] - GAMMA * vx[k] + NU * lvx) * dt;
+      vy[k] += (c2 * ly - wo2 * uy[k] - GAMMA * vy[k] + NU * lvy) * dt;
+    }
+    if (brush) for (const [k, w, u0, v0] of brush.list) {
+      const K = 3000 * w, D = 90 * w;
+      vx[k] += ((u0 + brush.px * w - ux[k]) * K - vx[k] * D) * dt;
+      vy[k] += ((v0 + brush.py * w - uy[k]) * K - vy[k] * D) * dt;
+    }
+    for (let k = 0; k < count; k++) { ux[k] += vx[k] * dt; uy[k] += vy[k] * dt; }
+  }
+
+  const tex = {};
+  const load = (name, tries = 2) => new Promise(res => {
+    const i = new Image(); i.crossOrigin = 'anonymous';
+    i.onload = () => res(i);
+    i.onerror = () => { if (tries > 1) load(name, tries - 1).then(res); else { console.warn('[face] could not load', name); res(null); } };
+    i.src = url(IDS[name], name);
+  });
+  const pending = {};
+  const ensure = name => {                       // load a face once, whenever it is first needed
+    if (tex[name]) return Promise.resolve(true);
+    if (!pending[name]) pending[name] = load(name).then(img => { if (img) upload(name, img); return !!img; });
+    return pending[name];
+  };
+  function upload(name, img) {
+    if(!img) return;
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    tex[name] = t;
+  }
+
+  let faceA = 'rest', faceB = 'rest', fadeT = 0, fadeMs = 200;
+  let activeEmotion = 'rest', emotionUntil = 0;
+
+  let triggerId = 0;
+  window.__triggerFaceEmotion = function(e, ms) {
+    const id = ++triggerId, dur = ms || 3500;
+    const show = () => { if (id !== triggerId) return; activeEmotion = e; emotionUntil = performance.now() + dur; };
+    if (tex[e]) show();                          // already loaded: instant
+    else ensure(e).then(ok => { if (ok) show(); });   // not loaded yet: fetch it, THEN start the timer
+  };
+
+  const toUv = (x, y) => { const r = canvas.getBoundingClientRect(); return [((x - r.left) / r.width - .5) * OVER + .5, ((y - r.top) / r.height - .5) * OVER + .5]; };
+
+  let isDragging = false, startU = 0, startV = 0;
+  const grabZone = document.getElementById('magnetWrap');   // only the face-sized box is grabbable
+  grabZone.addEventListener('pointerdown', e => {
+    if (e.button !== undefined && e.button > 0) return;
+    e.preventDefault();
+    isDragging = true;
+    [startU, startV] = toUv(e.clientX, e.clientY);
+    takeHold(startU, startV);
+  });
+  window.addEventListener('pointermove', e => {
+    if (isDragging && brush) {
+      const [u, v] = toUv(e.clientX, e.clientY);
+      let dx = u - startU, dy = v - startV;
+      const m = Math.hypot(dx, dy), L = .2; // soft limit so the face stretches but never folds into itself
+      if (m > 1e-6) { const k = L * Math.tanh(m / L) / m; dx *= k; dy *= k; }
+      brush.px = dx;
+      brush.py = dy;
+    }
+  });
+  const release = () => {
+    if (isDragging && brush) { const m = Math.hypot(brush.px, brush.py); window.__triggerFaceEmotion(m > .08 ? 'laugh' : 'grin', 2200); }
+    isDragging = false; brush = null;
+  };
+  window.addEventListener('pointerup', release);
+  window.addEventListener('pointercancel', release);
+  window.addEventListener('blur', release);
+
+  let lastTime = performance.now();
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(0.032, Math.max(0, (now - lastTime) / 1000));
+    lastTime = now;
+
+    resize();
+    const sub = Math.ceil(dt / 0.003);
+    for (let q = 0; q < sub; q++) step(dt / sub);
+
+    let want = 'rest';
+    if (now < emotionUntil) want = activeEmotion;
+    if (isDragging && brush) { // stretching: surprise -> pain -> crying / scared
+      const m = Math.hypot(brush.px, brush.py);
+      want = m < .03 ? 'shock' : m < .08 ? 'scrunch' : Math.abs(brush.px) > Math.abs(brush.py) * 1.5 ? 'scared' : 'cry';
+    }
+    
+    if (want !== faceB && tex[want]) {
+      faceA = faceB;
+      faceB = want;
+      fadeT = now;
+    }
+
+    for (let k = 0, o = 0; k < count; k++) {
+      dyn[o++] = ux[k]; dyn[o++] = uy[k]; dyn[o++] = 1.0;
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, dynBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, dyn);
+
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[faceA] || tex.rest);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tex[faceB] || tex.rest);
+    gl.uniform1f(U.fade, Math.min(1, (now - fadeT) / fadeMs));
+    gl.uniform2f(U.lean, 0, 0);
+    gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0);
+  }
+
+  (async () => {
+    if (FACE_DIR) document.getElementById('faceFallback').src = FACE_DIR + 'rest.png';
+    const base = await load('rest');
+    if (!base) return;
+    upload('rest', base);
+    document.getElementById('faceFallback').style.visibility = 'hidden';
+    requestAnimationFrame(frame);
+    
+    // load every face in parallel; the ones the buttons / drag use go first
+    const first = ['grin','hearts','winkr','whistle1','shock','sneeze1','yawn','laugh','scrunch','cry','angry','scared'];
+    const rest_ = Object.keys(IDS).filter(n => n !== 'rest' && !first.includes(n));
+    first.forEach(n => ensure(n));
+    setTimeout(() => rest_.forEach(n => ensure(n)), 1500);
+  })();
+})();
+</script>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var now=function(){return new Date().toLocaleTimeString()};
+var S={sos:[],audit:[],trips:[],hist:[],
+ contacts:[{n:'Trusted contact 1',p:'+91 98765 43210'}],
+ reports:[{id:'R-101',cat:'Broken streetlight',loc:'Anna Nagar 2nd Ave',st:'Under review',by:'Citizen'},{id:'R-102',cat:'Isolated path',loc:'Adyar Park Rd',st:'Unverified',by:'Citizen'}],
+ users:[['U-1001','Priya S.','Personal','Verified','Active'],['U-1002','Meena R.','Corporate','Verified','Active'],['U-1003','Divya K.','Personal','Pending','Active']],
+ places:[['Adyar Police Station','Police','Verified'],['Apollo Pharmacy 24/7','Safe Stop','Verified'],['Indian Oil Petrol Bunk','Safe Stop','Pending'],['Govt. General Hospital','Hospital','Verified']],
+ drivers:[['D-11','Lakshmi (Woman driver)','TN09 AB 1234','Verified','Licence valid'],['D-12','Ravi','TN10 CD 5678','Flagged','Licence expired']]};
+var st=['Unverified','Under review','Verified','Referred to authority','Action in progress','Resolved','Rejected'];
+var card=function(t,b){return '<div class="bg-white/5 border border-white/15 rounded-2xl p-5"><h3 class="font-bold text-white mb-3">'+t+'</h3>'+b+'</div>'};
+var btn=function(l,f,c){return '<button onclick="'+f+'" class="px-3 py-1.5 rounded-full text-xs text-white cursor-pointer '+(c||'bg-white/10 hover:bg-white/20 border border-white/20')+'">'+l+'</button>'};
+var inp='w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-pink-500';
+var tbl=function(h,rows){return '<div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="text-white/50 uppercase"><tr>'+h.map(function(x){return '<th class="py-2 pr-3">'+x+'</th>'}).join('')+'</tr></thead><tbody class="text-white/90">'+rows.map(function(r){return '<tr class="border-t border-white/10">'+r.map(function(c){return '<td class="py-2 pr-3 align-top">'+c+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>'};
+var stat=function(l,v,c){return '<div class="bg-'+c+'-900/20 border border-'+c+'-500/30 p-4 rounded-xl"><p class="text-xs text-'+c+'-300">'+l+'</p><p class="text-3xl font-bold text-white">'+v+'</p></div>'};
+var log=function(m){S.audit.unshift(now()+' — '+m)};
+var sel=function(opts,cur,f){return '<select onchange="'+f+'" class="bg-black border border-white/20 rounded-lg text-xs text-white p-1">'+opts.map(function(o){return '<option'+(o===cur?' selected':'')+'>'+o+'</option>'}).join('')+'</select>'};
+var tag=function(s){var c=/Verified|Resolved|Active|Delivered|Valid/.test(s)?'text-green-400':/Reject|Flag|expired|Suspend/.test(s)?'text-red-400':'text-yellow-300';return '<span class="'+c+'">'+s+'</span>'};
+
+/* ---------- CITIZEN ---------- */
+var CT={
+home:function(){return card('Instant Emergency SOS','<p class="text-xs text-white/60 mb-4 text-center">Tap SOS to alert trusted contacts &amp; dispatch with your last available location. Offline alerts are queued and retried.</p><button onclick="triggerSOS()" class="w-32 h-32 rounded-full bg-red-600 hover:bg-red-500 text-white font-black text-xl shadow-lg shadow-red-500/50 border-4 border-red-300 transition-transform active:scale-95 mx-auto flex items-center justify-center cursor-pointer">SOS</button><p id="sosStatus" class="text-center text-xs text-yellow-300 mt-3"></p>')+
+ '<div class="grid md:grid-cols-2 gap-4">'+card('Check-in Timer','<p class="text-xs text-white/60 mb-2">Alert my contacts if I do not check in on time.</p><div class="flex gap-2"><input id="chk" type="number" min="1" value="15" class="'+inp+'"><span class="text-xs text-white/60 self-center">min</span>'+btn('Start','SA.checkin()')+'</div><p id="chkMsg" class="text-xs text-yellow-300 mt-2"></p>')+
+ card('Fake Call / Silent SOS','<p class="text-xs text-white/60 mb-2">Get out of an uncomfortable situation discreetly.</p>'+btn('Fake incoming call','SA.fake()')+' '+btn('Silent SOS','SA.sos(true)','bg-red-600/60 hover:bg-red-600 border border-red-400')+'<div id="fakeBox" class="hidden mt-3 p-3 rounded-xl bg-green-900/30 border border-green-500/40 text-sm text-white">📞 Incoming call: <b>Amma</b> '+btn('Dismiss','SA.fake()')+'</div>')+'</div>'},
+map:function(){return card('Live Safety Heatmap','<div class="flex gap-3 text-xs mb-3"><span class="text-green-400">● Lower reported risk</span><span class="text-yellow-300">● Caution</span><span class="text-red-400">● Elevated reported risk</span></div><select id="zone" onchange="SA.zone()" class="'+inp+'"><option value="">Select an area…</option><option value="g">T. Nagar (main road)</option><option value="y">Adyar Park Rd</option><option value="r">Isolated lane near ECR</option></select><p id="zoneOut" class="text-xs text-white/70 mt-2"></p><p class="text-[11px] text-white/40 mt-2">Estimated from available reports. Green is not a guarantee of safety; red does not prove an incident will occur.</p>')+
+ card('Police, Hospitals &amp; Safe Stops',tbl(['Name','Type','Status',''],S.places.map(function(p){return [esc(p[0]),p[1],tag(p[2]),'<a class="text-pink-400 underline" target="_blank" rel="noopener" href="https://www.google.com/maps/search/'+encodeURIComponent(p[0])+'">Directions</a>']})))},
+trips:function(){var a=S.trips[0];return card('Verified Safe Trip',a&&!a.end?'<p class="text-sm text-white mb-2">Trip <b>'+a.id+'</b> in progress — driver '+esc(a.driver)+' ('+esc(a.veh)+'), started '+a.start+'</p>'+btn('Share live link with contacts','SA.share()')+' '+btn('Confirm drop-off / End trip','SA.endTrip()','bg-green-600/60 hover:bg-green-600 border border-green-400'):'<div class="grid md:grid-cols-3 gap-2"><input id="tD" class="'+inp+'" placeholder="Driver name"><input id="tV" class="'+inp+'" placeholder="Vehicle no."><input id="tP" class="'+inp+'" placeholder="Pickup location"></div><div class="mt-3">'+btn('Start trip','SA.startTrip()','bg-pink-600/70 hover:bg-pink-600 border border-pink-400')+'</div>')+
+ card('Trip History &amp; Safety Certificates',S.trips.filter(function(t){return t.end}).length?tbl(['Trip','Driver','Start','End','Rating',''],S.trips.filter(function(t){return t.end}).map(function(t){return [t.id,esc(t.driver),t.start,t.end,sel(['—','★★★★★','★★★★','★★★','★★','★'],t.rate||'—','SA.rate(\''+t.id+'\',this.value)'),btn('Certificate','SA.cert(\''+t.id+'\')')]})):'<p class="text-xs text-white/50">No completed trips yet.</p>')+
+ card('Women Drivers &amp; Local Jobs','<p class="text-xs text-white/60 mb-2">Find verified women drivers, or apply to drive.</p>'+tbl(['Driver','Vehicle','Status'],S.drivers.filter(function(d){return d[3]=='Verified'}).map(function(d){return [d[1],d[2],tag(d[3])]}))+'<div class="mt-3">'+btn('Apply for driver training / jobs','SA.apply()')+'</div>')},
+reports:function(){return card('Report an Unsafe Place','<div class="grid md:grid-cols-2 gap-2"><select id="rC" class="'+inp+'"><option>Poorly lit street</option><option>Broken streetlight</option><option>Unsafe walking path</option><option>Isolated area</option><option>Transport concern</option></select><input id="rL" class="'+inp+'" placeholder="Location"></div><textarea id="rT" rows="2" class="'+inp+' mt-2" placeholder="Describe the issue"></textarea><div class="mt-2">'+btn('Submit report','SA.report()','bg-pink-600/70 hover:bg-pink-600 border border-pink-400')+'</div>')+
+ card('My Reports &amp; Issue Tracking',tbl(['Ref','Issue','Location','Status'],S.reports.map(function(r){return [r.id,esc(r.cat),esc(r.loc),tag(r.st)]})))},
+privacy:function(){return card('Emergency Contacts',tbl(['Name','Phone',''],S.contacts.map(function(c,i){return [esc(c.n),esc(c.p),btn('Remove','SA.delC('+i+')')]}))+'<div class="grid grid-cols-3 gap-2 mt-3"><input id="cN" class="'+inp+'" placeholder="Name"><input id="cP" class="'+inp+'" placeholder="Phone"><div>'+btn('Add','SA.addC()')+'</div></div>')+
+ card('Privacy &amp; Settings','<label class="flex justify-between text-sm text-white py-1">Share location only during SOS / active trip<input type="checkbox" checked></label><label class="flex justify-between text-sm text-white py-1">Hide home address from employer<input type="checkbox" checked disabled></label><div class="flex items-center gap-2 py-2 text-sm text-white">Language '+sel(['English','தமிழ்','हिन्दी'],'English','SA.lang(this.value)')+'</div>'+btn('Revoke location permission','SA.revoke()')+' '+btn('Delete my account','SA.del()','bg-red-600/60 hover:bg-red-600 border border-red-400'))},
+help:function(){return card('Helplines &amp; Safety Tips','<ul class="text-sm text-white/90 space-y-1"><li>🚨 Emergency: <b>112</b> &nbsp; 👩 Women Helpline: <b>181</b> &nbsp; 🚓 Police: <b>100</b></li><li>• Share your trip link before getting in a cab.</li><li>• Prefer well-lit, busy roads; use Safe Stops if you feel unsafe.</li><li>• Offline? Your SOS is saved and retried when the network returns.</li></ul>')+
+ card('Alert History',S.hist.length?tbl(['Time','Event','Status'],S.hist.map(function(h){return [h[0],h[1],tag(h[2])]})):'<p class="text-xs text-white/50">No alerts yet.</p>')}
+};
+var CN={home:'Home',map:'Map & Heatmap',trips:'Trips',reports:'Reports',privacy:'Contacts & Privacy',help:'Help & History'};
+
+/* ---------- ADMIN ---------- */
+var AT={
+overview:function(){var act=S.sos.filter(function(s){return s.st!='Resolved'}).length;return '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">'+stat('Active Incidents',act,'purple')+stat('Registered Users','1,284','blue')+stat('Active Trips',S.trips.filter(function(t){return !t.end}).length,'green')+stat('Pending Reports',S.reports.filter(function(r){return r.st=='Unverified'||r.st=='Under review'}).length,'yellow')+'</div><div class="grid md:grid-cols-2 gap-4">'+card('Service Health',tbl(['Service','Status'],[['SMS gateway',tag('Active')],['Call integration',tag('Active')],['Alert delivery rate','98.6%'],['Uptime (30d)','99.9%']]))+card('Recent Activity','<ul class="text-xs text-white/80 space-y-1">'+(S.audit.slice(0,6).map(function(a){return '<li>'+esc(a)+'</li>'}).join('')||'<li class="text-white/50">No activity yet.</li>')+'</ul>')+'</div>'},
+sos:function(){return card('Live SOS Monitor',S.sos.length?tbl(['ID','User','Location','Time','Status','Actions'],S.sos.map(function(s,i){return [s.id,s.user,s.loc,s.time,tag(s.st),btn('Acknowledge','SA.sosSet('+i+',\'Acknowledged\')')+' '+btn('Assign unit','SA.sosSet('+i+',\'Unit assigned\')')+' '+btn('Resolve','SA.sosSet('+i+',\'Resolved\')')]})):'<p class="text-xs text-white/50">No SOS alerts. Trigger one from the Citizen Hub to see it here.</p>')},
+users:function(){return card('User Management',tbl(['ID','Name','Mode','Verification','Status',''],S.users.map(function(u,i){return [u[0],u[1],u[2],tag(u[3]),tag(u[4]),btn(u[4]=='Active'?'Suspend':'Reactivate','SA.usr('+i+')')]})))+'<p class="text-[11px] text-white/40">Identity numbers and home addresses are masked and never shown to admins by default.</p>'},
+reports:function(){return card('Report Moderation &amp; Issue Tracking',tbl(['Ref','Issue','Location','By','Status'],S.reports.map(function(r,i){return [r.id,esc(r.cat),esc(r.loc),r.by,sel(st,r.st,'SA.rep('+i+',this.value)')]})))},
+trips:function(){return card('Trip Monitoring',(S.trips.length?tbl(['Trip','Driver','Vehicle','Start','End','Flag'],S.trips.map(function(t){return [t.id,esc(t.driver),esc(t.veh),t.start,t.end||'In progress','<span class="text-yellow-300">Deviation: none</span>']})):'<p class="text-xs text-white/50">No trips yet.</p>')+'<p class="text-[11px] text-white/40 mt-2">A route deviation is a prompt for review, not proof of danger.</p>')+
+ card('Driver &amp; Vehicle Verification',tbl(['ID','Driver','Vehicle','Status','Note'],S.drivers.map(function(d){return [d[0],d[1],d[2],tag(d[3]),tag(d[4])]})))},
+places:function(){return card('Police, Hospital &amp; Safe Stop Directory',tbl(['Name','Type','Status',''],S.places.map(function(p,i){return [esc(p[0]),p[1],tag(p[2]),btn(p[2]=='Verified'?'Suspend':'Verify','SA.plc('+i+')')]}))+'<div class="grid md:grid-cols-3 gap-2 mt-3"><input id="pN" class="'+inp+'" placeholder="Name"><select id="pT" class="'+inp+'"><option>Safe Stop</option><option>Police</option><option>Hospital</option></select><div>'+btn('Add location','SA.addP()')+'</div></div>')},
+system:function(){return card('Broadcast Safety Alert','<textarea id="bT" rows="2" class="'+inp+'" placeholder="Message to all users or an area"></textarea><div class="mt-2">'+btn('Send broadcast','SA.bcast()','bg-purple-600/70 hover:bg-purple-600 border border-purple-400')+'</div>')+
+ card('Roles &amp; Access',tbl(['Role','Access'],[['Super Admin','Everything'],['Safety Officer','SOS, reports, heatmap'],['Moderator','Reports only'],['Transport Manager / HR','Aggregated trip data (no home address)']]))+
+ card('Audit Log','<ul class="text-xs text-white/80 space-y-1">'+(S.audit.map(function(a){return '<li>'+esc(a)+'</li>'}).join('')||'<li class="text-white/50">Empty.</li>')+'</ul>')+
+ card('Monthly Report','<p class="text-xs text-white/60 mb-2">Journeys, compliance, unresolved alerts (aggregated).</p>'+btn('Download report','SA.monthly()'))}
+};
+var AN={overview:'Overview',sos:'SOS Monitor',users:'Users',reports:'Reports & Issues',trips:'Trips & Drivers',places:'Safe Stops & Police',system:'Reports, Roles & Audit'};
+
+/* ---------- EXTRA ADMIN CONTENT ---------- */
+S.orgs=[['ORG-01','Chennai Tech Park Cos.','Corporate',240,'96%','Active'],['ORG-02','Adyar Women\'s College','Campus',410,'91%','Active'],['ORG-03','Metro Logistics Pvt Ltd','Corporate',130,'78%','Review'],['ORG-04','Anna Nagar Residents Assn.','Community',85,'100%','Active']];
+S.zones=[['Z-01','T. Nagar main road','Low',3],['Z-02','Adyar Park Rd','Medium',9],['Z-03','Isolated lane near ECR','High',17],['Z-04','Velachery bus stand','Medium',11],['Z-05','Guindy Industrial Estate','Medium',8]];
+S.tickets=[{id:'T-501',from:'Priya S.',subj:'SOS contact not receiving SMS',pri:'High',st:'Open'},{id:'T-502',from:'Meena R.',subj:'Cab driver verification mismatch',pri:'High',st:'In progress'},{id:'T-503',from:'Divya K.',subj:'Change my emergency contact',pri:'Low',st:'Open'},{id:'T-504',from:'Corporate HR',subj:'Need monthly compliance export',pri:'Medium',st:'Resolved'}];
+var bars=function(l,v,c){var m=Math.max.apply(null,v)||1;return '<div class="space-y-2">'+l.map(function(x,i){return '<div class="flex items-center gap-2 text-xs"><span class="w-28 text-white/60">'+x+'</span><div class="flex-1 bg-white/10 rounded-full h-3"><div class="h-3 rounded-full '+c+'" style="width:'+Math.round(v[i]/m*100)+'%"></div></div><span class="w-8 text-right text-white">'+v[i]+'</span></div>'}).join('')+'</div>'};
+AT.analytics=function(){return '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">'+stat('Avg Response Time','3m 42s','green')+stat('Alerts This Week',S.sos.length+47,'purple')+stat('Resolved Rate','94%','blue')+stat('False Alarms','6%','yellow')+'</div><div class="grid md:grid-cols-2 gap-4">'+
+ card('SOS Alerts by Day (last 7 days)',bars(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],[6,5,8,7,11,9,4],'bg-purple-500'))+
+ card('Reports by Category',bars(['Poor lighting','Isolated area','Unsafe path','Transport','Harassment'],[38,24,19,12,7],'bg-pink-500'))+
+ card('Alerts by Time of Day',bars(['6am–12pm','12pm–6pm','6pm–10pm','10pm–6am'],[8,10,22,17],'bg-yellow-400'))+
+ card('Users by Mode',bars(['Personal','Corporate','Campus'],[742,402,140],'bg-blue-500'))+'</div><p class="text-[11px] text-white/40">Sample/demo figures. Aggregated only; no individual user data is shown.</p>'};
+AT.orgs=function(){return card('Corporate &amp; Campus Partners',tbl(['ID','Organization','Type','Members','Compliance','Status',''],S.orgs.map(function(o,i){return [o[0],esc(o[1]),o[2],o[3],o[4],tag(o[5]),btn(o[5]=='Active'?'Pause':'Activate','SA.org('+i+')')]}))+'<div class="grid md:grid-cols-4 gap-2 mt-3"><input id="oN" class="'+inp+'" placeholder="Organization name"><select id="oT" class="'+inp+'"><option>Corporate</option><option>Campus</option><option>Community</option></select><input id="oM" type="number" class="'+inp+'" placeholder="Members"><div>'+btn('Add partner','SA.addO()')+'</div></div>')+
+ '<p class="text-[11px] text-white/40">Partners see aggregated safety data only. Employee home addresses stay hidden.</p>'};
+AT.zones=function(){return card('Risk Zone Management (Heatmap)',tbl(['ID','Area','Risk level','Reports (30d)'],S.zones.map(function(z,i){return [z[0],esc(z[1]),sel(['Low','Medium','High'],z[2],'SA.zn('+i+',this.value)'),z[3]]}))+'<div class="grid md:grid-cols-3 gap-2 mt-3"><input id="zN" class="'+inp+'" placeholder="Area name"><select id="zR" class="'+inp+'"><option>Low</option><option>Medium</option><option>High</option></select><div>'+btn('Add zone','SA.addZ()')+'</div></div>')+
+ '<p class="text-[11px] text-white/40">Changing a risk level updates the Citizen heatmap labels after review. Levels reflect reports, not proof of danger.</p>'};
+AT.tickets=function(){return card('Support Tickets',tbl(['Ticket','From','Subject','Priority','Status'],S.tickets.map(function(t,i){return [t.id,esc(t.from),esc(t.subj),tag(t.pri=='High'?'Flagged High':t.pri),sel(['Open','In progress','Resolved','Closed'],t.st,'SA.tk('+i+',this.value)')]})))};
+AT.settings=function(){return card('Admin Session','<p class="text-xs text-white/70 mb-3">Signed in as <b class="text-white">'+esc(ADMIN_ID)+'</b> (Super Admin) since '+esc(adminSince)+'</p>'+btn('Sign out','SA.logoutAdmin()','bg-red-600/60 hover:bg-red-600 border border-red-400'))+
+ card('Alert Rules','<label class="flex justify-between text-sm text-white py-1">Auto-escalate unacknowledged SOS after 2 min<input type="checkbox" checked></label><label class="flex justify-between text-sm text-white py-1">Notify nearest unit automatically<input type="checkbox" checked></label><label class="flex justify-between text-sm text-white py-1">Flag trips with long route deviation<input type="checkbox" checked></label><label class="flex justify-between text-sm text-white py-1">Mask user identity in dashboards<input type="checkbox" checked disabled></label><div class="flex items-center gap-2 py-2 text-sm text-white">Location data retention '+sel(['7 days','30 days','90 days'],'30 days','SA.ret(this.value)')+'</div>')};
+AN={overview:'Overview',sos:'SOS Monitor',analytics:'Analytics',users:'Users',reports:'Reports & Issues',trips:'Trips & Drivers',orgs:'Organizations',zones:'Risk Zones',places:'Safe Stops & Police',tickets:'Support Tickets',system:'Reports, Roles & Audit',settings:'Settings'};
+
+var cur={c:'home',a:'overview'};
+function paint(r){var T=r=='c'?CT:AT,N=r=='c'?CN:AN;
+ $(r+'Tabs').innerHTML=Object.keys(N).map(function(k){return '<button onclick="SA.tab(\''+r+'\',\''+k+'\')" class="px-4 py-2 rounded-full text-xs cursor-pointer border '+(cur[r]==k?'bg-pink-600 border-pink-400 text-white':'border-white/20 text-white/70 hover:bg-white/10')+'">'+N[k]+'</button>'}).join('');
+ $(r+'Body').innerHTML=T[cur[r]]();}
+function paintAll(){paint('c');paint('a');}
+var ds=function(t){return '<div class="hidden"></div>'};
+
+window.SA={
+tab:function(r,k){cur[r]=k;paint(r)},
+sos:function(silent){var off=!navigator.onLine,id='SOS-'+(S.sos.length+101),stt=off?'Queued (offline)':'Delivered';
+ S.sos.unshift({id:id,user:'Citizen (you)',loc:'Last available location',time:now(),st:stt});S.hist.unshift([now(),silent?'Silent SOS':'SOS',stt]);log(id+' received');
+ var m=$('sosStatus');if(m)m.textContent=(silent?'Silent alert ':'Alert ')+(off?'saved — will retry when online.':'sent to your contacts and dispatch.');paint('a');},
+checkin:function(){var m=+$('chk').value||15;$('chkMsg').textContent='Timer started: contacts will be alerted in '+m+' min unless you check in.';setTimeout(function(){log('Check-in timer expired')},m*60000)},
+fake:function(){$('fakeBox').classList.toggle('hidden')},
+zone:function(){var v=$('zone').value;$('zoneOut').innerHTML={g:'<span class="text-green-400">Lower reported risk</span> — few recent concerns.',y:'<span class="text-yellow-300">Caution</span> — some reports, lighting issues.',r:'<span class="text-red-400">Elevated reported risk</span> — repeated reports. Prefer Safe Stops nearby.'}[v]||''},
+startTrip:function(){var d=$('tD').value.trim(),v=$('tV').value.trim();if(!d||!v){alert('Enter driver and vehicle details.');return}S.trips.unshift({id:'TRIP-'+(S.trips.length+201),driver:d,veh:v,pick:$('tP').value,start:now()});log('Trip started');paintAll()},
+share:function(){alert('Expiring live-tracking link sent to your emergency contacts.')},
+endTrip:function(){S.trips[0].end=now();log('Trip completed '+S.trips[0].id);paintAll()},
+rate:function(id,v){S.trips.forEach(function(t){if(t.id==id)t.rate=v})},
+cert:function(id){var t=S.trips.filter(function(x){return x.id==id})[0];SA.dl(id+'-certificate.txt','SAFE AURA — TRIP CERTIFICATE\nJourney ID: '+t.id+'\nDriver: '+t.driver+'\nVehicle: '+t.veh+'\nStart: '+t.start+'\nEnd: '+t.end+'\nThis documents recorded events only; it is not a guarantee of safety.')},
+apply:function(){alert('Application received. Our team will contact you about training and employment.')},
+report:function(){var l=$('rL').value.trim();if(!l){alert('Add a location.');return}S.reports.unshift({id:'R-'+(S.reports.length+101),cat:$('rC').value,loc:l,st:'Unverified',by:'Citizen'});log('New report submitted');paintAll()},
+addC:function(){var n=$('cN').value.trim(),p=$('cP').value.trim();if(n&&p){S.contacts.push({n:n,p:p});paint('c')}},
+delC:function(i){S.contacts.splice(i,1);paint('c')},
+lang:function(v){alert('Language set to '+v+' (demo).')},
+revoke:function(){alert('Location permission revoked.')},
+del:function(){if(confirm('Delete your account and data?')){log('Account deletion requested');alert('Request submitted.')}},
+sosSet:function(i,s){S.sos[i].st=s;log(S.sos[i].id+' → '+s);paint('a')},
+usr:function(i){S.users[i][4]=S.users[i][4]=='Active'?'Suspended':'Active';log(S.users[i][0]+' '+S.users[i][4]);paint('a')},
+rep:function(i,v){S.reports[i].st=v;log(S.reports[i].id+' → '+v);paintAll()},
+plc:function(i){S.places[i][2]=S.places[i][2]=='Verified'?'Suspended':'Verified';log(S.places[i][0]+' '+S.places[i][2]);paintAll()},
+addP:function(){var n=$('pN').value.trim();if(n){S.places.push([n,$('pT').value,'Pending']);log('Added '+n);paintAll()}},
+bcast:function(){var m=$('bT').value.trim();if(m){log('Broadcast: '+m);paint('a');alert('Broadcast sent (demo).')}},
+monthly:function(){SA.dl('safe-aura-monthly-report.txt','Safe Aura monthly report\nJourneys: '+S.trips.length+'\nSOS alerts: '+S.sos.length+'\nReports: '+S.reports.length)},
+dl:function(n,txt){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));a.download=n;a.click()}
+};
+window.triggerSOS=function(){SA.sos(false)};
+var oldLogin=window.performExistingLogin;
+window.performExistingLogin=function(){var id=($('loginId').value||'').trim().toLowerCase();if(id==='admin'){closeAuthModal();openAdminLogin();return}oldLogin();cur.c='home';paint('c')};
+var oldFin=window.finishRegistration;window.finishRegistration=function(){oldFin();paintAll()};
+
+/* ---------- ADMIN AUTH GATE ---------- */
+var ADMIN_ID='admin',ADMIN_HASH='2092545ff671b0f3b133fdbc2cff523e55592f03ea5cbac445d974ba7302b82c',adminAuthed=false,adminSince='',fails=0,lockUntil=0;
+var sha=function(t){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(h){return Array.from(new Uint8Array(h)).map(function(x){return ('0'+x.toString(16)).slice(-2)}).join('')})};
+function showAdmin(){adminAuthed=true;adminSince=now();$('adminLoginModal').style.display='none';cur.a='overview';log('Admin signed in');paint('a');$('adminDash').style.display='block'}
+window.openAdminLogin=function(){if(adminAuthed){$('adminDash').style.display='block';return}
+ $('adminLoginModal').style.display='flex';$('alErr').textContent='';$('alId').value='';$('alPass').value='';setTimeout(function(){$('alId').focus()},50)};
+window.closeAdminLogin=function(){$('adminLoginModal').style.display='none'};
+window.submitAdminLogin=function(){
+ var wait=Math.ceil((lockUntil-Date.now())/1000);if(wait>0){$('alErr').textContent='Too many attempts. Try again in '+wait+'s.';return}
+ var id=$('alId').value.trim().toLowerCase(),pw=$('alPass').value;
+ if(!window.crypto||!crypto.subtle){$('alErr').textContent='Secure sign-in needs HTTPS or localhost.';return}
+ sha(pw).then(function(h){
+  if(id===ADMIN_ID&&h===ADMIN_HASH){fails=0;showAdmin()}
+  else{fails++;$('alPass').value='';if(fails>=5){lockUntil=Date.now()+30000;fails=0;$('alErr').textContent='Too many attempts. Locked for 30s.'}else $('alErr').textContent='Invalid admin ID or password.'}
+ })};
+/* keep the dashboard hidden unless signed in, even if something tries to show it */
+new MutationObserver(function(){var d=$('adminDash');if(!adminAuthed&&d.style.display!=='none')d.style.display='none'}).observe($('adminDash'),{attributes:true,attributeFilter:['style','class']});
+var oldClose=window.closeDashboards;
+window.closeDashboards=function(){adminAuthed=false;oldClose()};
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAdminLogin()});
+SA.logoutAdmin=function(){closeDashboards()};
+SA.org=function(i){S.orgs[i][5]=S.orgs[i][5]=='Active'?'Paused':'Active';log(S.orgs[i][1]+' '+S.orgs[i][5]);paint('a')};
+SA.addO=function(){var n=$('oN').value.trim();if(!n)return;S.orgs.push(['ORG-0'+(S.orgs.length+1),n,$('oT').value,+$('oM').value||0,'—','Active']);log('Added partner '+n);paint('a')};
+SA.zn=function(i,v){S.zones[i][2]=v;log(S.zones[i][1]+' risk → '+v)};
+SA.addZ=function(){var n=$('zN').value.trim();if(!n)return;S.zones.push(['Z-0'+(S.zones.length+1),n,$('zR').value,0]);log('Added zone '+n);paint('a')};
+SA.tk=function(i,v){S.tickets[i].st=v;log(S.tickets[i].id+' → '+v)};
+SA.ret=function(v){log('Data retention set to '+v)};
+paintAll();
+})();
+</script>
+</body>
+</html>
